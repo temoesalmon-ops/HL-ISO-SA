@@ -12,14 +12,13 @@ pnr_text = st.text_area(
 if st.button("Générer le code Amadeus"):
     try:
         # Expression régulière pour capturer les éléments clés de la ligne de vol
-        # Exemple de ligne : "3   VT 171 L 18AUG 2 PPTNKP HK2"
         pattern = r"([A-Z0-9]{2})\s+(\d+)\s+([A-Z])\s+(\d{2}[A-Z]{3})\s+(\d+)\s+([A-Z]{6})"
         match = re.search(pattern, pnr_text)
 
         if match:
             airline = match.group(1)  # ex: VT
             flight_num = match.group(2)  # ex: 171
-cls = match.group(3)  # ex: L
+            cls = match.group(3)  # ex: L (corrigé ici)
             date = match.group(4)  # ex: 18AUG
             pax_count = match.group(5)  # ex: 2 (nombre de places)
             route = match.group(6)  # ex: PPTNKP
