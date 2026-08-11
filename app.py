@@ -1,7 +1,7 @@
 import re
 import streamlit as st
 
-st.title("Générateur de code Amadeus intelligent")
+st.title("HL ISO SA")
 
 # Zone de texte pour coller l'exemple de dossier/ligne Amadeus
 pnr_text = st.text_area(
