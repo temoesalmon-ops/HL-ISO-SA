@@ -6,7 +6,7 @@ st.title("HL ISO SA")
 # Zone de texte pour coller l'exemple de dossier/ligne Amadeus
 pnr_text = st.text_area(
     "Collez votre ligne de vol Amadeus ici :",
-    value="2 VT 948 L 12AUG 3 PPTTUB SA1  1 0530 0710 *1A/E*",
+    value="",
 )
 
 if st.button("Générer le code Amadeus"):
