@@ -11,31 +11,27 @@ pnr_text = st.text_area(
 
 if st.button("Générer le code Amadeus"):
     try:
-        # Expression régulière pour capturer les éléments clés de la ligne de vol
-        pattern = r"([A-Z0-9]{2})\s+(\d+)\s+([A-Z])\s+(\d{2}[A-Z]{3})\s+(\d+)\s+([A-Z]{6})"
+        # Expression régulière mise à jour : 
+        # On capture le trajet (6 lettres) AVANT le statut (ex: HK2)
+        pattern = r"([A-Z0-9]{2})\s+(\d+)\s+([A-Z])\s+(\d{2}[A-Z]{3})\s+([A-Z]{6})\s+[A-Z]{2}(\d+)"
         match = re.search(pattern, pnr_text)
 
         if match:
-            airline = match.group(1)  # ex: VT
-            flight_num = match.group(2)  # ex: 171
-            cls = match.group(3)  # ex: L (corrigé ici)
-            date = match.group(4)  # ex: 18AUG
-            pax_count = match.group(5)  # ex: 2 (nombre de places)
-            route = match.group(6)  # ex: PPTNKP
+            airline = match.group(1)      # ex: VT
+            flight_num = match.group(2)   # ex: 171
+            cls = match.group(3)          # ex: L
+            date = match.group(4)         # ex: 18AUG
+            route = match.group(5)        # ex: PPTNKP
+            pax_count = match.group(6)    # ex: Le chiffre après HK (ex: 2)
 
-            # Construction du code final basé sur votre modèle en couleur :
-            # SS + Compagnie + Vol + Classe + Date + Trajet + Nombre
-            amadeus_code = (
-                f"SS{airline}{flight_num}{cls}{date}{route}{pax_count}"
-            )
+            # Construction du code final : SS + Compagnie + Vol + Classe + Date + Trajet + Nombre final
+            amadeus_code = f"SS{airline}{flight_num}{cls}{date}{route}{pax_count}"
 
             st.success("Code généré avec succès !")
             st.subheader("Résultat à copier-coller :")
             st.code(amadeus_code, language="text")
         else:
-            st.error(
-                "Impossible de reconnaitre le format de la ligne. Vérifiez votre texte."
-            )
+            st.error("Impossible de reconnaitre le format de la ligne. Vérifiez votre texte.")
 
     except Exception as e:
         st.error(f"Une erreur est survenue lors du traitement : {e}")
