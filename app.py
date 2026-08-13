@@ -8,7 +8,7 @@ pnr_text = st.text_area(
     value="2 VT 964 M 16AUG 3 PPTHOI SA1  1 0530 0710 *1A/E*",
 )
 
-if st.button("Générer le code Amadeus"):
+if st.button("HL ISO SA"):
     try:
         pattern = r"([A-Z0-9]{2})\s+(\d+)\s+([A-Z])\s+(\d{2}[A-Z]{3})\s+(\d+)\s+([A-Z]{6})\s+([A-Z]{2})(\d+)"
         match = re.search(pattern, pnr_text)
