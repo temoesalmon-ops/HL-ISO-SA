@@ -1,7 +1,7 @@
 import re
 import streamlit as st
 
-st.title("Générateur de code Amadeus intelligent")
+st.title("HL iso SA")
 
 pnr_text = st.text_area(
     "Collez votre ligne de vol Amadeus ici :",
