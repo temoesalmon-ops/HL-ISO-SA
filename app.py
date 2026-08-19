@@ -5,7 +5,7 @@ st.title("HL iso SA")
 
 pnr_text = st.text_area(
     "Collez votre ligne de vol Amadeus ici :",
-    value="2 VT 964 M 16AUG 3 PPTHOI SA1  1 0530 0710 *1A/E*",
+    value="",
 )
 
 if st.button("HL ISO SA"):
