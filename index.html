@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HL iso SA</title>
+<style>
+  :root {
+    --bg: #f3f5f8;
+    --surface: #ffffff;
+    --text: #14202e;
+    --muted: #5b6b7d;
+    --line: #d5dce5;
+    --accent: #0b5cad;
+    --accent-text: #ffffff;
+    --ok-bg: #e4f4ea;
+    --ok-text: #14532d;
+    --err-bg: #fbe9e9;
+    --err-text: #7f1d1d;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1722;
+      --surface: #172231;
+      --text: #e6edf5;
+      --muted: #93a3b5;
+      --line: #2b3a4d;
+      --accent: #4b9bf0;
+      --accent-text: #08121f;
+      --ok-bg: #15301f;
+      --ok-text: #b8ebc8;
+      --err-bg: #3a1a1a;
+      --err-text: #f6c4c4;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 1.9rem; margin: 0 0 20px; letter-spacing: -0.01em; }
+  h2 { font-size: 1.05rem; margin: 24px 0 8px; }
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    padding: 12px;
+    font: 0.95rem/1.4 ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    resize: vertical;
+  }
+  textarea:focus-visible, button:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .actions { margin-top: 12px; display: flex; gap: 10px; }
+  button {
+    font: inherit;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-text);
+    cursor: pointer;
+  }
+  button.secondary {
+    background: transparent;
+    color: var(--accent);
+  }
+  .msg { margin-top: 16px; padding: 12px 14px; border-radius: 6px; }
+  .msg.ok { background: var(--ok-bg); color: var(--ok-text); }
+  .msg.err { background: var(--err-bg); color: var(--err-text); }
+  .code-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+  pre {
+    flex: 1;
+    margin: 0;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: 1rem/1.4 ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+    overflow-x: auto;
+    user-select: all;
+  }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>HL iso SA</h1>
+
+  <label for="pnr" class="sr" style="position:absolute;left:-9999px">Texte du PNR</label>
+  <textarea id="pnr" spellcheck="false" autocomplete="off"></textarea>
+
+  <div class="actions">
+    <button type="button" id="go">LOUIA LE QUARTIER</button>
+  </div>
+
+  <div id="msg" class="msg" hidden role="status"></div>
+
+  <section id="result" hidden>
+    <h2>Résultat à copier-coller :</h2>
+    <div class="code-wrap">
+      <pre id="code"></pre>
+      <button type="button" id="copy" class="secondary">Copier</button>
+    </div>
+  </section>
+</main>
+
+<script>
+  const pnr = document.getElementById("pnr");
+  const msg = document.getElementById("msg");
+  const result = document.getElementById("result");
+  const code = document.getElementById("code");
+  const copyBtn = document.getElementById("copy");
+
+  const PATTERN = /([A-Z0-9]{2})\s+(\d+)\s+([A-Z])\s+(\d{2}[A-Z]{3})\s+(\d+)\s+([A-Z]{6})\s+([A-Z]{2})(\d+)/;
+
+  function show(type, text) {
+    msg.className = "msg " + type;
+    msg.textContent = text;
+    msg.hidden = false;
+  }
+
+  document.getElementById("go").addEventListener("click", () => {
+    msg.hidden = true;
+    result.hidden = true;
+    try {
+      const m = PNR_MATCH(pnr.value);
+      if (!m) {
+        show("err", "Impossible de reconnaitre le format de la ligne. Vérifiez votre texte.");
+        return;
+      }
+      const airline = m[1];
+      const flightNum = m[2];
+      const cls = m[3];
+      const date = m[4];
+      const route = m[6];
+      const paxCount = m[8];
+
+      const amadeus = "SS" + airline + flightNum + cls.toLowerCase() +
+                      date.toLowerCase() + route.toLowerCase() + "LF" + paxCount;
+
+      code.textContent = amadeus;
+      result.hidden = false;
+      show("ok", "Code généré avec succès !");
+    } catch (e) {
+      show("err", "Une erreur est survenue lors du traitement : " + e.message);
+    }
+  });
+
+  function PNR_MATCH(text) { return PATTERN.exec(text); }
+
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(code.textContent);
+      copyBtn.textContent = "Copié";
+    } catch (e) {
+      const r = document.createRange();
+      r.selectNodeContents(code);
+      const s = getSelection();
+      s.removeAllRanges();
+      s.addRange(r);
+      copyBtn.textContent = "Sélectionné";
+    }
+    setTimeout(() => { copyBtn.textContent = "Copier"; }, 1500);
+  });
+</script>
+</body>
+</html>
